@@ -22,11 +22,14 @@ dependencies {
     // Spring Boot 기본
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
+//    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
+	// H2 데이터베이스
+	runtimeOnly("com.h2database:h2")
+
     // Redis 클라이언트
-    implementation("io.lettuce.core:lettuce-core")
+    implementation("io.lettuce:lettuce-core:6.5.0.RELEASE")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
