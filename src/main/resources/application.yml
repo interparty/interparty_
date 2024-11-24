@@ -1,0 +1,41 @@
+# Application 정보
+spring:
+  application:
+    name: interparty
+
+  # 데이터베이스 설정
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:./db/data
+    username: sa
+    password:
+
+  # JPA 설정
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  # H2 콘솔 설정
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # Redis 설정
+  redis:
+    connection:
+      host: localhost
+      port: 6379
+
+# Redisson 관련 설정
+redisson:
+  config:
+    singleServerConfig:
+      address: redis://127.0.0.1:6379
+      connectionMinimumIdleSize: 2
+      connectionPoolSize: 10
+      timeout: 3000
