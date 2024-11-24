@@ -22,8 +22,10 @@ dependencies {
     // Spring Boot 기본
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-//    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
+	// Redis Lock 구현에 필요한 Redisson 추가
+	implementation("org.redisson:redisson-spring-boot-starter:3.23.5")
 
 	// H2 데이터베이스
 	runtimeOnly("com.h2database:h2")

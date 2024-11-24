@@ -1,4 +1,5 @@
-package com.sparta.interparty.domain.common.entity
+package com.sparta.interparty.global.entity
+
 
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
