@@ -1,5 +1,6 @@
 package com.sparta.interparty.global.exception
 
+import jodd.net.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
