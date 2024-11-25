@@ -39,3 +39,7 @@ redisson:
       connectionMinimumIdleSize: 2
       connectionPoolSize: 10
       timeout: 3000
+
+jwt:
+  secret:
+    key: g9kszkHTlGSJRtfAUkq8i7d/7+gDayMy0gCEmZS0zOhehRTPyALLoDMCVTwIOpLNl7X7jZLir/vN1PDsU51Ixg==
