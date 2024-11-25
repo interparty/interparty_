@@ -1,7 +1,7 @@
 package com.sparta.interparty.global.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.sparta.interparty.domain.auth.dto.req.SigninRequestDto
+import com.sparta.interparty.domain.auth.dto.req.SigninReqDto
 import com.sparta.interparty.global.security.UserDetailsImpl
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
@@ -23,9 +23,9 @@ class JwtAuthenticationFilter(private val jwtUtil: JwtUtil) : UsernamePasswordAu
     override fun attemptAuthentication(req: HttpServletRequest, res: HttpServletResponse): Authentication {
         log.info("로그인 시도")
         try {
-            val requestDto: SigninRequestDto = ObjectMapper().readValue(
+            val requestDto: SigninReqDto = ObjectMapper().readValue(
                 req.inputStream,
-                SigninRequestDto::class.java
+                SigninReqDto::class.java
             )
 
             return authenticationManager.authenticate(

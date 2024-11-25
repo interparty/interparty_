@@ -1,6 +1,7 @@
 package com.sparta.interparty.domain.user.entity
 
-import com.sun.jdi.request.InvalidRequestStateException
+import com.sparta.interparty.global.exception.CustomException
+import com.sparta.interparty.global.exception.ExceptionResponseStatus
 
 enum class UserRole {
     ADMIN, USER, MANAGER;
@@ -8,7 +9,7 @@ enum class UserRole {
     companion object {
         fun of(role: String): UserRole {
             return values().find { it.name.equals(role, ignoreCase = true) }
-                ?: throw InvalidRequestStateException("유효하지 않은 UserRole")
+                ?: throw CustomException(ExceptionResponseStatus.INVALID_USERROLE)
         }
     }
 }

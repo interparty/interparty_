@@ -14,7 +14,8 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
 
     // auth
     DUPLICATE_USERNAME(HttpStatus.CONFLICT,"이미 존재하는 계정 이름입니다."), // 409
-    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다")
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
+    INVALID_USERROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다.")
     // reservation
 
     // review

@@ -1,7 +1,9 @@
 package com.sparta.interparty.domain.auth.controller
 
-import com.sparta.interparty.domain.auth.dto.req.SignupRequestDto
+import com.sparta.interparty.domain.auth.dto.req.SignupReqDto
+import com.sparta.interparty.domain.auth.dto.res.SignupResDto
 import com.sparta.interparty.domain.auth.service.AuthService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,8 +18,9 @@ class AuthController(
 ) {
 
     @PostMapping("/signup")
-    fun signup(@RequestBody signupRequestDto: SignupRequestDto): ResponseEntity<String> {
+    fun signup(@Valid @RequestBody signupRequestDto: SignupReqDto): ResponseEntity<SignupResDto> {
         authService.signup(signupRequestDto)
-        return ResponseEntity.status(HttpStatus.CREATED).body("회원 가입이 완료되었습니다!")
+        val res = SignupResDto(okSignup = "회원 가입이 완료되었습니다!")
+        return ResponseEntity.status(HttpStatus.CREATED).body(res)
     }
 }
