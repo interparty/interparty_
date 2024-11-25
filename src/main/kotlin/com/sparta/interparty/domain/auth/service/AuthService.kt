@@ -4,6 +4,9 @@ import com.sparta.interparty.domain.auth.dto.req.SignupRequestDto
 import com.sparta.interparty.domain.user.entity.User
 import com.sparta.interparty.domain.user.entity.UserRole
 import com.sparta.interparty.domain.user.repo.UserRepository
+import com.sparta.interparty.global.exception.DuplicateEmailException
+import com.sparta.interparty.global.exception.DuplicateUsernameException
+import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -15,11 +18,11 @@ class AuthService(
     fun signup(signupRequestDto: SignupRequestDto) {
 
         if(userRepository.existsByUsername(signupRequestDto.username)){
-            throw IllegalArgumentException("이미 존재하는 계정 이름입니다.")
+            throw DuplicateUsernameException(ExceptionResponseStatus.DUPLICATE_USERNAME)
         }
 
         if(userRepository.existsByEmail(signupRequestDto.email)){
-            throw IllegalArgumentException("이미 존재하는 이메일입니다.")
+            throw DuplicateEmailException(ExceptionResponseStatus.DUPLICATE_EMAIL)
         }
 
         val encodedPassword = passwordEncoder.encode(signupRequestDto.password)
@@ -34,7 +37,7 @@ class AuthService(
             userRole = userRole,
             phoneNumber = signupRequestDto.phoneNumber
         )
-        val savedUser = userRepository.save(newUser)
+        userRepository.save(newUser)
     }
 
 }

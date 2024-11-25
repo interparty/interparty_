@@ -13,7 +13,8 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     RESPONSE_ERROR_B(HttpStatus.BAD_REQUEST, "오류 응답 예시 B"),
 
     // auth
-
+    DUPLICATE_USERNAME(HttpStatus.CONFLICT,"이미 존재하는 계정 이름입니다."), // 409
+    DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다")
     // reservation
 
     // review
