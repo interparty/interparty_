@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserService(
-    private final val userRepository: UserRepository,
-    private final val passwordEncoder: PasswordEncoder
+    private val userRepository: UserRepository,
+    private val passwordEncoder: PasswordEncoder
 ) {
 
     fun getUserInfo(userDetails: UserDetailsImpl): UserResDto {
