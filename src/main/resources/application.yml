@@ -1,35 +1,30 @@
-# Application 정보
 spring:
-  application:
-    name: interparty
-
-  # 데이터베이스 설정
+  profiles:
+    active: prod
   datasource:
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:./db/data
-    username: sa
-    password:
-
-  # JPA 설정
+    url: ${spring.datasource.url}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    properties:
-      hibernate:
-        show_sql: true
+    database: mysql
     hibernate:
       ddl-auto: update
-    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+jwt:
+  secret:
+    key: ${jwt.secret.key}
 
-  # H2 콘솔 설정
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-
-  # Redis 설정
-  redis:
-    connection:
-      host: localhost
-      port: 6379
+# Redis 설정
+redis:
+  connection:
+    host: localhost
+    port: 6379
 
 # Redisson 관련 설정
 redisson:
@@ -39,7 +34,3 @@ redisson:
       connectionMinimumIdleSize: 2
       connectionPoolSize: 10
       timeout: 3000
-
-jwt:
-  secret:
-    key: g9kszkHTlGSJRtfAUkq8i7d/7+gDayMy0gCEmZS0zOhehRTPyALLoDMCVTwIOpLNl7X7jZLir/vN1PDsU51Ixg==
