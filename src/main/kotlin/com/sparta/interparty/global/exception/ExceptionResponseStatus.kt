@@ -21,13 +21,13 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     // review
     REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
     REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 리뷰입니다."),
-    INVALID_REVIEW_REQUEST(HttpStatus.BAD_REQUEST, "리뷰 요청이 잘못되었습니다.");
+    INVALID_REVIEW_REQUEST(HttpStatus.BAD_REQUEST, "리뷰 요청이 잘못되었습니다."),
 
     // show
 
 
     // user
-    DELETED_USER(HttpStatus.FORBIDDEN,"이미 탈퇴한 사용자입니다.")
+    DELETED_USER(HttpStatus.FORBIDDEN,"이미 탈퇴한 사용자입니다.");
     ;
     // 열거형에서 바로 응답 엔티티 생성
     fun toResponseEntity(): ResponseEntity<ExceptionResponse> {
