@@ -35,10 +35,11 @@ class UserController(
     }
 
     @PatchMapping("/update")
-    fun updateUserInfo(@AuthenticationPrincipal userDetails: UserDetailsImpl,
-                       @RequestBody req: UpdateUserReqDto
-    ): ResponseEntity<OkResDto>{
-        userService.updateUserInfo(userDetails,req)
+    fun updateUserInfo(
+        @AuthenticationPrincipal userDetails: UserDetailsImpl,
+        @RequestBody req: UpdateUserReqDto
+    ): ResponseEntity<OkResDto> {
+        userService.updateUserInfo(userDetails, req)
         val res = OkResDto(okString = "회원 정보가 수정되었습니다.")
         return ResponseEntity.status(HttpStatus.OK).body(res)
     }

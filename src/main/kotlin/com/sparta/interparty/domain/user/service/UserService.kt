@@ -43,6 +43,7 @@ class UserService(
         userRepository.save(user)
     }
 
+    @Transactional
     fun updateUserInfo(userDetails: UserDetailsImpl, req: UpdateUserReqDto) {
         if (!passwordEncoder.matches(req.currentPassword, userDetails.password)) {
             throw CustomException(ExceptionResponseStatus.INVALID_PASSWORD)
