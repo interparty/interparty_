@@ -17,7 +17,7 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
     INVALID_USERROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."),
     LOGIN_REQUIRED(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
-
+  
     // reservation
 
     // review
@@ -30,7 +30,7 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     NOT_A_MANAGER(HttpStatus.FORBIDDEN, "해당 공연의 매니저가 아닙니다."), // 403
 
     // user
-
+    DELETED_USER(HttpStatus.FORBIDDEN,"이미 탈퇴한 사용자입니다.")
     ;
     // 열거형에서 바로 응답 엔티티 생성
     fun toResponseEntity(): ResponseEntity<ExceptionResponse> {
