@@ -15,12 +15,16 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     // auth
     DUPLICATE_USERNAME(HttpStatus.CONFLICT,"이미 존재하는 계정 이름입니다."), // 409
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "이미 존재하는 이메일입니다."),
-    INVALID_USERROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다.")
+    INVALID_USERROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."),
     // reservation
 
     // review
+    REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "리뷰를 찾을 수 없습니다."),
+    REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 리뷰입니다."),
+    INVALID_REVIEW_REQUEST(HttpStatus.BAD_REQUEST, "리뷰 요청이 잘못되었습니다.");
 
     // show
+
 
     // user
 

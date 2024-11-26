@@ -6,5 +6,3 @@ class CustomException(val exceptionResponseStatus: ExceptionResponseStatus) :
 // auth
 class DuplicateUsernameException(val exceptionResponseStatus: ExceptionResponseStatus) :
     RuntimeException(exceptionResponseStatus.message)
-class DuplicateEmailException(val exceptionResponseStatus: ExceptionResponseStatus) :
-    RuntimeException(exceptionResponseStatus.message)
