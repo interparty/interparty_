@@ -23,7 +23,9 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     // show
 
     // user
-    DELETED_USER(HttpStatus.FORBIDDEN,"이미 탈퇴한 사용자입니다.")
+    DELETED_USER(HttpStatus.FORBIDDEN,"이미 탈퇴한 사용자입니다."),
+    INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다.")
     ;
     // 열거형에서 바로 응답 엔티티 생성
     fun toResponseEntity(): ResponseEntity<ExceptionResponse> {
