@@ -17,7 +17,7 @@ class UserController(
     private val userService: UserService
 ) {
 
-    @GetMapping("/info")
+    @GetMapping
     fun getUserInfo(@AuthenticationPrincipal userDetails: UserDetailsImpl): ResponseEntity<UserResDto> {
         val res: UserResDto = userService.getUserInfo(userDetails)
         return ResponseEntity.status(HttpStatus.OK).body<UserResDto>(res)
