@@ -1,6 +1,5 @@
 package com.sparta.interparty.domain.user.controller
 
-import com.sparta.interparty.domain.user.dto.req.UserReqDto
 import com.sparta.interparty.domain.user.dto.res.UserResDto
 import com.sparta.interparty.domain.user.service.UserService
 import com.sparta.interparty.global.security.UserDetailsImpl
