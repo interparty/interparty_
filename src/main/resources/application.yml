@@ -2,35 +2,49 @@ spring:
   profiles:
     active: prod
   datasource:
-    url: ${spring.datasource.url}
-    username: ${spring.datasource.username}
-    password: ${spring.datasource.password}
+    url: jdbc:mysql://localhost:3306/interparty # 데이터베이스 URL (DB 이름: interparty)
+    username: root # DB 사용자명
+    password: 123456789 # DB 비밀번호
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
     hibernate:
-      ddl-auto: update
+      ddl-auto: update # 스키마 자동 업데이트 (운영 환경에서는 'none' 추천)
     show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
         use_sql_comments: true
+
 jwt:
   secret:
-    key: ${jwt.secret.key}
+    key: "GTaMhbxMu8nhyvj6/LbhTs7hvOzM+xL8rNcUy/OzUGQ=" # Base64로 인코딩된 JWT 시크릿 키
 
-# Redis 설정
 redis:
   connection:
-    host: localhost
-    port: 6379
+    host: localhost # Redis 서버 주소
+    port: 6379      # Redis 포트
 
-# Redisson 관련 설정
 redisson:
   config:
     singleServerConfig:
-      address: redis://127.0.0.1:6379
-      connectionMinimumIdleSize: 2
-      connectionPoolSize: 10
-      timeout: 3000
+      address: redis://127.0.0.1:6379 # Redis 주소
+      connectionMinimumIdleSize: 2    # 최소 연결 수
+      connectionPoolSize: 10          # 연결 풀 크기
+      timeout: 3000                   # 타임아웃 (밀리초)
+
+logging:
+  level:
+    root: INFO        # 전체 로그 레벨
+    org.springframework: DEBUG # Spring 관련 디버그 로그
+    com.sparta: DEBUG  # 프로젝트 패키지 디버그 로그
+
+server:
+  port: 8080 # 애플리케이션 실행 포트
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 모든 관리 엔드포인트 노출
