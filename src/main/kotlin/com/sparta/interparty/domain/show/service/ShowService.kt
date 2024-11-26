@@ -34,7 +34,7 @@ class ShowService(val showRepository: ShowRepository) {
         }
 
         // Dto 에서 생성한 공연 엔티티의 빈 매니저 자리를 채워 넣고 저장.
-        reqShow.setManager(user)
+        reqShow.manager = user
         return showRepository.save(reqShow)
     }
 
@@ -92,7 +92,7 @@ class ShowService(val showRepository: ShowRepository) {
         val show: Show = showRepository.findByIdAndIsDeletedFalse(id).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
 
         // 해당 공연 매니저가 아니면서 어드민도 아닌 경우 예외를 던짐.
-        if (user.id != show.getManager()?.id && user.userRole != UserRole.ADMIN) {
+        if (user.id != show.manager?.id && user.userRole != UserRole.ADMIN) {
             throw CustomException(ExceptionResponseStatus.NOT_A_MANAGER)
         }
 
@@ -103,13 +103,13 @@ class ShowService(val showRepository: ShowRepository) {
         try {
             patchMap.forEach { (key, value) ->
                 when (key) {
-                    "name" -> show.setName(value as String)
-                    "contents" -> show.setContents(value as String)
-                    "address" -> show.setAddress(value as String)
-                    "price" -> show.setPrice(value as Long)
-                    "totalSeats" -> show.setTotalSeats(value as Long)
-                    "startDateTime" -> show.setStartDateTime(LocalDateTime.parse(value as String))
-                    "category" -> show.setCategory(value as ShowCategories)
+                    "name" -> show.name = (value as String)
+                    "contents" -> show.contents = (value as String)
+                    "address" -> show.address = (value as String)
+                    "price" -> show.price = (value as Long)
+                    "totalSeats" -> show.totalSeats = (value as Long)
+                    "startDateTime" -> show.startDateTime = (LocalDateTime.parse(value as String))
+                    "category" -> show.category = (value as ShowCategories)
                 }
             }
         } catch (ex: Exception) {
@@ -135,12 +135,12 @@ class ShowService(val showRepository: ShowRepository) {
         val show: Show = showRepository.findByIdAndIsDeletedFalse(id).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
 
         // 해당 공연 매니저가 아니면서 어드민도 아닌 경우 예외를 던짐.
-        if (user.id != show.getManager()?.id && user.userRole != UserRole.ADMIN) {
+        if (user.id != show.manager?.id && user.userRole != UserRole.ADMIN) {
             throw CustomException(ExceptionResponseStatus.NOT_A_MANAGER)
         }
 
         // Soft Delete 처리 후 저장.
-        show.setIsDeleted(true)
+        show.isDeleted = true
         showRepository.save(show)
     }
 

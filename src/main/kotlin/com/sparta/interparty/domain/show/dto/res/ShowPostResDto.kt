@@ -19,16 +19,16 @@ data class ShowPostResDto(
     companion object {
         fun of(show: Show): ShowPostResDto {
             return ShowPostResDto(
-                show.getId(),
+                show.id,
                 show.getCreatedAt(),
                 show.getModifiedAt(),
-                show.getName(),
-                show.getContents(),
-                show.getAddress(),
-                show.getPrice(),
-                show.getTotalSeats(),
-                show.getStartDateTime().toString(),
-                show.getCategory().toString()
+                show.name,
+                show.contents,
+                show.address,
+                show.price,
+                show.totalSeats,
+                show.startDateTime.toString(),
+                show.category.toString()
             )
         }
     }
