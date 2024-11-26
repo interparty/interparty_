@@ -8,48 +8,44 @@ import com.sparta.interparty.global.exception.CustomException
 import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
 @Service
 class ReviewService(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewMapper: ReviewMapper
 ) {
 
     @Transactional(readOnly = true)
-    fun getReviews(showId: Long?): List<ReviewResDto> {
-        val reviews = if (showId != null) {
-            reviewRepository.findAllByShowId(showId)
-        } else {
-            reviewRepository.findAll()
-        }
-        if (reviews.isEmpty()) {
-            throw CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND)
-        }
-        return reviews.map { ReviewMapper.toDto(it) }
+    fun getReviews(showId: UUID?): List<ReviewResDto> {
+        val reviews = showId?.let {
+            reviewRepository.findByShowIdAndIsDeletedFalse(it)
+        } ?: reviewRepository.findAllByIsDeletedFalse()
+
+        return reviews.map { reviewMapper.toDto(it) }
     }
 
     @Transactional
-    fun createReview(userId: Long, showId: Long, requestDto: ReviewReqDto): ReviewResDto {
-        val existingReview = reviewRepository.findByUserIdAndShowId(userId, showId)
-        if (existingReview != null) {
-            throw CustomException(ExceptionResponseStatus.REVIEW_ALREADY_EXISTS)
+    fun createReview(userId: UUID, showId: UUID, dto: ReviewReqDto): ReviewResDto {
+        val review = reviewMapper.toEntity(dto, userId, showId)
+        reviewRepository.save(review)
+        return reviewMapper.toDto(review)
+    }
+
+    @Transactional
+    fun updateReview(reviewId: UUID, dto: ReviewReqDto): ReviewResDto {
+        val review = reviewRepository.findByIdAndIsDeletedFalse(reviewId).orElseThrow {
+            CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND)
         }
-        val review = ReviewMapper.toEntity(userId, showId, requestDto)
-        val savedReview = reviewRepository.save(review)
-        return ReviewMapper.toDto(savedReview)
+        review.updateReview(dto.comment, dto.rating)
+        return reviewMapper.toDto(review)
     }
 
     @Transactional
-    fun updateReview(reviewId: Long, requestDto: ReviewReqDto): ReviewResDto {
-        val review = reviewRepository.findById(reviewId)
-            .orElseThrow { CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND) }
-        review.update(requestDto.comment, requestDto.rating)
-        return ReviewMapper.toDto(review)
-    }
-
-    @Transactional
-    fun deleteReview(reviewId: Long) {
-        val review = reviewRepository.findById(reviewId)
-            .orElseThrow { CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND) }
-        reviewRepository.delete(review)
+    fun deleteReview(reviewId: UUID) {
+        val review = reviewRepository.findByIdAndIsDeletedFalse(reviewId).orElseThrow {
+            CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND)
+        }
+        review.softDelete()
     }
 }

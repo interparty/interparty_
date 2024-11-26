@@ -2,20 +2,20 @@ package com.sparta.interparty.domain.review.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.*
 
 @Entity
 @Table(name = "reviews")
-data class Review(
-
+class Review(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    @GeneratedValue(strategy = GenerationType.UUID)
+    val id: UUID? = null,
 
     @Column(nullable = false)
-    val userId: Long,
+    val userId: UUID,
 
     @Column(nullable = false)
-    val showId: Long,
+    val showId: UUID,
 
     @Column(nullable = false, length = 500)
     var comment: String,
@@ -23,16 +23,22 @@ data class Review(
     @Column(nullable = false)
     var rating: Int,
 
+    @Column(nullable = false)
+    var isDeleted: Boolean = false
+) {
     @Column(nullable = false, updatable = false)
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now()
 
     @Column(nullable = false)
-    var updatedAt: LocalDateTime = LocalDateTime.now()
-) {
+    var modifiedAt: LocalDateTime = LocalDateTime.now()
 
-    fun update(comment: String, rating: Int) {
-        this.comment = comment
-        this.rating = rating
-        this.updatedAt = LocalDateTime.now()
+    fun updateReview(newComment: String, newRating: Int) {
+        comment = newComment
+        rating = newRating
+        modifiedAt = LocalDateTime.now()
+    }
+
+    fun softDelete() {
+        isDeleted = true
     }
 }

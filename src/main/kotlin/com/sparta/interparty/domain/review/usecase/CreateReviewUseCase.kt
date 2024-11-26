@@ -4,22 +4,17 @@ import com.sparta.interparty.domain.review.dto.req.ReviewReqDto
 import com.sparta.interparty.domain.review.dto.res.ReviewResDto
 import com.sparta.interparty.domain.review.mapper.ReviewMapper
 import com.sparta.interparty.domain.review.repo.ReviewRepository
-import com.sparta.interparty.global.exception.CustomException
-import com.sparta.interparty.global.exception.ExceptionResponseStatus
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import java.util.*
 
-@Component
+@Service
 class CreateReviewUseCase(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewMapper: ReviewMapper
 ) {
-    fun execute(userId: Long, showId: Long, dto: ReviewReqDto): ReviewResDto {
-        val existingReview = reviewRepository.findByUserIdAndShowId(userId, showId)
-        if (existingReview != null) {
-            throw CustomException(ExceptionResponseStatus.REVIEW_ALREADY_EXISTS)
-        }
-
-        val review = ReviewMapper.toEntity(userId, showId, dto)
+    fun execute(userId: UUID, showId: UUID, dto: ReviewReqDto): ReviewResDto {
+        val review = reviewMapper.toEntity(dto, userId, showId)
         val savedReview = reviewRepository.save(review)
-        return ReviewMapper.toDto(savedReview)
+        return reviewMapper.toDto(savedReview)
     }
 }

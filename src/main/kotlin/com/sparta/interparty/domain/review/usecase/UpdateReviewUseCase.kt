@@ -4,23 +4,20 @@ import com.sparta.interparty.domain.review.dto.req.ReviewReqDto
 import com.sparta.interparty.domain.review.dto.res.ReviewResDto
 import com.sparta.interparty.domain.review.mapper.ReviewMapper
 import com.sparta.interparty.domain.review.repo.ReviewRepository
-import com.sparta.interparty.global.exception.CustomException
-import com.sparta.interparty.global.exception.ExceptionResponseStatus
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.util.*
 
-@Component
+@Service
 class UpdateReviewUseCase(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewMapper: ReviewMapper
 ) {
-    fun execute(reviewId: Long, dto: ReviewReqDto): ReviewResDto {
-        val review = reviewRepository.findById(reviewId)
-            .orElseThrow { CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND) }
-
-        if (dto.comment.isBlank() || dto.rating !in 1..10) {
-            throw CustomException(ExceptionResponseStatus.INVALID_REVIEW_REQUEST)
-        }
-
-        review.update(dto.comment, dto.rating)
-        return ReviewMapper.toDto(review)
+    @Transactional
+    fun execute(reviewId: UUID, dto: ReviewReqDto): ReviewResDto {
+        val review = reviewRepository.findByIdAndIsDeletedFalse(reviewId)
+            .orElseThrow { IllegalArgumentException("Review not found") }
+        review.updateReview(dto.comment, dto.rating)
+        return reviewMapper.toDto(review)
     }
 }

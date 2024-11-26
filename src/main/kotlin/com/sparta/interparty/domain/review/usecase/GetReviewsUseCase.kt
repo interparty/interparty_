@@ -3,25 +3,19 @@ package com.sparta.interparty.domain.review.usecase
 import com.sparta.interparty.domain.review.dto.res.ReviewResDto
 import com.sparta.interparty.domain.review.mapper.ReviewMapper
 import com.sparta.interparty.domain.review.repo.ReviewRepository
-import com.sparta.interparty.global.exception.CustomException
-import com.sparta.interparty.global.exception.ExceptionResponseStatus
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
+import java.util.*
 
-@Component
+@Service
 class GetReviewsUseCase(
-    private val reviewRepository: ReviewRepository
+    private val reviewRepository: ReviewRepository,
+    private val reviewMapper: ReviewMapper
 ) {
-    fun execute(showId: Long?): List<ReviewResDto> {
-        val reviews = if (showId != null) {
-            reviewRepository.findAllByShowId(showId)
-        } else {
-            reviewRepository.findAll()
-        }
+    fun execute(showId: UUID?): List<ReviewResDto> {
+        val reviews = showId?.let {
+            reviewRepository.findByShowIdAndIsDeletedFalse(it)
+        } ?: reviewRepository.findAllByIsDeletedFalse()
 
-        if (reviews.isEmpty()) {
-            throw CustomException(ExceptionResponseStatus.REVIEW_NOT_FOUND)
-        }
-
-        return reviews.map { ReviewMapper.toDto(it) }
+        return reviews.map { reviewMapper.toDto(it) }
     }
 }

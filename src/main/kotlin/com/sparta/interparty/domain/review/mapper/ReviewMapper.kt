@@ -3,10 +3,12 @@ package com.sparta.interparty.domain.review.mapper
 import com.sparta.interparty.domain.review.dto.req.ReviewReqDto
 import com.sparta.interparty.domain.review.dto.res.ReviewResDto
 import com.sparta.interparty.domain.review.entity.Review
+import org.springframework.stereotype.Component
+import java.util.*
 
-object ReviewMapper {
-
-    fun toEntity(userId: Long, showId: Long, dto: ReviewReqDto): Review {
+@Component
+class ReviewMapper {
+    fun toEntity(dto: ReviewReqDto, userId: UUID, showId: UUID): Review {
         return Review(
             userId = userId,
             showId = showId,
@@ -15,15 +17,15 @@ object ReviewMapper {
         )
     }
 
-    fun toDto(entity: Review): ReviewResDto {
+    fun toDto(review: Review): ReviewResDto {
         return ReviewResDto(
-            id = entity.id,
-            userId = entity.userId,
-            showId = entity.showId,
-            comment = entity.comment,
-            rating = entity.rating,
-            createdAt = entity.createdAt,
-            updatedAt = entity.updatedAt
+            id = review.id,
+            userId = review.userId,
+            showId = review.showId,
+            comment = review.comment,
+            rating = review.rating,
+            createdAt = review.createdAt,
+            modifiedAt = review.modifiedAt
         )
     }
 }
