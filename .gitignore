@@ -39,3 +39,5 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+src/**/application-prod.yml
