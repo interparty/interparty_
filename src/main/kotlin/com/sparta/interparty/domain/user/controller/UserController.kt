@@ -22,7 +22,7 @@ class UserController(
         return ResponseEntity.status(HttpStatus.OK).body(res)
     }
 
-    @PatchMapping
+    @PatchMapping("/signout")
     fun signout(@AuthenticationPrincipal userDetails: UserDetailsImpl,
                        @RequestBody req: SignoutReqDto): ResponseEntity<SignoutResDto> {
         userService.signout(userDetails, req)
