@@ -1,6 +1,8 @@
 package com.sparta.interparty.domain.user.service
 
+import com.sparta.interparty.domain.user.dto.req.UpdateUserReqDto
 import com.sparta.interparty.domain.user.dto.res.UserResDto
+import com.sparta.interparty.domain.user.entity.User
 import com.sparta.interparty.domain.user.repo.UserRepository
 import com.sparta.interparty.global.exception.CustomException
 import com.sparta.interparty.global.exception.ExceptionResponseStatus
@@ -39,5 +41,25 @@ class UserService(
         val user = userDetails.getUser() ?: throw CustomException(ExceptionResponseStatus.USER_NOT_FOUND)
         user.isDeleted = true
         userRepository.save(user)
+    }
+
+    fun updateUserInfo(userDetails: UserDetailsImpl, req: UpdateUserReqDto) {
+        if (!passwordEncoder.matches(req.currentPassword, userDetails.password)) {
+            throw CustomException(ExceptionResponseStatus.INVALID_PASSWORD)
+        }
+        val user = userDetails.getUser() ?: throw CustomException(ExceptionResponseStatus.USER_NOT_FOUND)
+        setUserInfo(req, user)
+        userRepository.save(user)
+    }
+
+    private fun setUserInfo(req: UpdateUserReqDto, user: User) {
+        var isModified = false
+        req.newPassword?.let { user.password = passwordEncoder.encode(it); isModified = true }
+        req.email?.let { user.email = it; isModified = true }
+        req.nickname?.let { user.nickname = it; isModified = true }
+        req.phoneNumber?.let { user.phoneNumber = it; isModified = true }
+        if (!isModified) {
+            throw CustomException(ExceptionResponseStatus.INVALID_UPDATE_REQUEST)
+        }
     }
 }
