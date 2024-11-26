@@ -31,8 +31,8 @@ class UserService(
         )
     }
 
-    fun signout(userDetails: UserDetailsImpl, req: SignoutReqDto) {
-        if (!passwordEncoder.matches(req.password, userDetails.password)) {
+    fun signout(userDetails: UserDetailsImpl, password: String) {
+        if (!passwordEncoder.matches(password, userDetails.password)) {
             throw CustomException(ExceptionResponseStatus.INVALID_PASSWORD)
         }
         val user = userDetails.getUser() ?: throw CustomException(ExceptionResponseStatus.USER_NOT_FOUND)
