@@ -1,4 +1,7 @@
 package com.sparta.interparty.domain.reservation.dto.req
 
-class ReservationReqDto {
-}
+import java.util.UUID
+
+class ReservationReqDto (
+    val seat : Long
+)
