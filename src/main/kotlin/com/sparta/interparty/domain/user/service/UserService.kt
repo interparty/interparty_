@@ -1,11 +1,11 @@
 package com.sparta.interparty.domain.user.service
 
-import com.sparta.interparty.domain.user.dto.req.SignoutReqDto
 import com.sparta.interparty.domain.user.dto.res.UserResDto
 import com.sparta.interparty.domain.user.repo.UserRepository
 import com.sparta.interparty.global.exception.CustomException
 import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import com.sparta.interparty.global.security.UserDetailsImpl
+import jakarta.transaction.Transactional
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -31,6 +31,7 @@ class UserService(
         )
     }
 
+    @Transactional
     fun signout(userDetails: UserDetailsImpl, password: String) {
         if (!passwordEncoder.matches(password, userDetails.password)) {
             throw CustomException(ExceptionResponseStatus.INVALID_PASSWORD)
