@@ -6,6 +6,8 @@ import com.sparta.interparty.domain.reservation.entity.Reservation
 import com.sparta.interparty.domain.reservation.repo.ReservationRepository
 import com.sparta.interparty.domain.show.repo.ShowRepository
 import com.sparta.interparty.domain.user.repo.UserRepository
+import com.sparta.interparty.global.exception.CustomException
+import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -22,8 +24,12 @@ class ReservationService(
 ) {
     @Transactional
     fun createReservation(userId: UUID, showId: UUID, request: ReservationReqDto): ReservationResDto {
-        if (request.seat < 1) {
-            throw IllegalArgumentException("좌석 번호는 1 이상이어야 합니다.")
+        val user = userRepository.findById(userId).orElseThrow { CustomException(ExceptionResponseStatus.USER_NOT_FOUND) }
+        val show = showRepository.findById(showId).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
+
+        // 요청 본문의 좌석 번호가 총 좌석 수 범위가 아닐 경우 예외 처리
+        if (!(request.seat >= 1 && request.seat <= show.totalSeats)) {
+            throw CustomException(ExceptionResponseStatus.RESERVE_NOT_FOUND)
         }
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
@@ -35,12 +41,17 @@ class ReservationService(
             showId = show,
             seat = request.seat
         )
+
+        // 예약 엔티티 상태 갱신
+        reservation.confirmReservation()
+
+        // 저장 및 반환
         val savedReservation = reservationRepository.save(reservation)
 
         return ReservationResDto(
-            id = savedReservation.id,
-            userId = savedReservation.reserverId.id, // 사용자 ID
-            showId = savedReservation.showId.id, // 공연 ID
+            id = savedReservation.id!!,
+            userId = savedReservation.reserver.id,
+            showId = savedReservation.show.id!!,
             seat = savedReservation.seat,
             status = savedReservation.status // 예약 상태
         )

@@ -16,6 +16,9 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     INVALID_USERROLE(HttpStatus.BAD_REQUEST, "유효하지 않은 사용자 권한입니다."),
 
     // reservation
+    RESERVE_NOT_FOUND(HttpStatus.BAD_REQUEST,"예약을 찾을 수 없습니다."),
+    DUPLICATE_RESERVATION(HttpStatus.CONFLICT,"해당 좌석은 이미 예약되었습니다."),
+    CANNOT_CONFIRM_DELETED_RESERVATION(HttpStatus.BAD_REQUEST,"삭제된 예약은 확정할 수 없습니다."),
 
     // review
 

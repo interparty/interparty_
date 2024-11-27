@@ -11,8 +11,7 @@ interface ReservationRepository : JpaRepository<Reservation, UUID> {
         reserverId: UUID,
         pageable: Pageable
     ): Page<Reservation>
+    fun findByShowIdAndSeat(showId: UUID, seat: Long): Reservation?
 
-    fun findByIdAndIsDeletedFalse(
-        id: UUID
-    ): Optional<Reservation>
+    fun findAllByShowIdAndIsDeletedFalse(showId: UUID, pageRequest: PageRequest): Page<Reservation>
 }
