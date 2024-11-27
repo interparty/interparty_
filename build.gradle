@@ -1,6 +1,7 @@
 plugins {
 	id 'org.jetbrains.kotlin.jvm' version '1.9.25'
 	id 'org.jetbrains.kotlin.plugin.spring' version '1.9.25'
+	id 'org.jetbrains.kotlin.plugin.jpa' version '2.0.0'
 	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
 }
@@ -22,11 +23,21 @@ dependencies {
     // Spring Boot 기본
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+
+	// Redis Lock 구현에 필요한 Redisson 추가
+	implementation("org.redisson:redisson-spring-boot-starter:3.23.5")
+
+	// H2 데이터베이스
+	runtimeOnly("com.h2database:h2")
+
+	// MySQL
+	runtimeOnly 'com.mysql:mysql-connector-j'
 
     // Redis 클라이언트
-    implementation("io.lettuce.core:lettuce-core")
+    implementation("io.lettuce:lettuce-core:6.5.0.RELEASE")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-reflect")
@@ -35,6 +46,14 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// bcrypt
+	implementation 'at.favre.lib:bcrypt:0.10.2'
+
+	// jwt
+	compileOnly group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
+	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 }
 
 kotlin {
@@ -45,4 +64,11 @@ kotlin {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+//kotlin
+allOpen {
+	annotation("jakarta.persistence.Entity")
+	annotation("jakarta.persistence.Embeddable")
+	annotation("jakarta.persistence.MappedSuperclass")
 }

@@ -1,0 +1,39 @@
+spring:
+  profiles:
+    active: prod
+  jpa:
+    database: mysql
+    hibernate:
+      ddl-auto: update # 스키마 자동 업데이트 (운영 환경에서는 'none' 추천)
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        use_sql_comments: true
+
+jwt:
+  secret:
+    key: "GTaMhbxMu8nhyvj6/LbhTs7hvOzM+xL8rNcUy/OzUGQ=" # Base64로 인코딩된 JWT 시크릿 키
+
+redis:
+  connection:
+    host: localhost # Redis 서버 주소
+    port: 6379      # Redis 포트
+
+redisson:
+  config:
+    singleServerConfig:
+      address: redis://127.0.0.1:6379 # Redis 주소
+      connectionMinimumIdleSize: 2    # 최소 연결 수
+      connectionPoolSize: 10          # 연결 풀 크기
+      timeout: 3000                   # 타임아웃 (밀리초)
+
+server:
+  port: 8080 # 애플리케이션 실행 포트
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" # 모든 관리 엔드포인트 노출
