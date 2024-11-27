@@ -8,6 +8,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity
+@Table(name = "shows")
 class Show() : TimeStamped() {
 
     // Id 를 제외한 모든 필드에 대한 생성자
