@@ -1,11 +1,6 @@
 spring:
   profiles:
     active: prod
-  datasource:
-    url: jdbc:mysql://localhost:3306/interparty # 데이터베이스 URL (DB 이름: interparty)
-    username: root # DB 사용자명
-    password: 123456789 # DB 비밀번호
-    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
     hibernate:
@@ -33,12 +28,6 @@ redisson:
       connectionMinimumIdleSize: 2    # 최소 연결 수
       connectionPoolSize: 10          # 연결 풀 크기
       timeout: 3000                   # 타임아웃 (밀리초)
-
-logging:
-  level:
-    root: INFO        # 전체 로그 레벨
-    org.springframework: DEBUG # Spring 관련 디버그 로그
-    com.sparta: DEBUG  # 프로젝트 패키지 디버그 로그
 
 server:
   port: 8080 # 애플리케이션 실행 포트
