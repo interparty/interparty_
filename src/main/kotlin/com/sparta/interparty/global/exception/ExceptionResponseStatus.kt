@@ -1,5 +1,6 @@
 package com.sparta.interparty.global.exception
 
+import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 

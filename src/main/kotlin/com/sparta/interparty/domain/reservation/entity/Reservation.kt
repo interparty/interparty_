@@ -4,22 +4,23 @@ import com.sparta.interparty.domain.reservation.enums.ReservationStatus
 import com.sparta.interparty.domain.show.entity.Show
 import com.sparta.interparty.domain.user.entity.User
 import com.sparta.interparty.global.entity.TimeStamped
+import com.sparta.interparty.global.exception.CustomException
+import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import jakarta.persistence.*
 
 import java.util.*
 
 @Entity
-@Table(name = "reservation")
-class Reservation  (
+class Reservation (
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    val id : UUID,
+    var id : UUID? = null,
     @ManyToOne
     @JoinColumn(name = "reserver_id")
-    val reserverId : User,
+    val reserver : User,
     @ManyToOne
     @JoinColumn(name = "show_id")
-    val showId : Show,
+    val show: Show,
     @Column
     var seat : Long,
     @Enumerated(EnumType.STRING)

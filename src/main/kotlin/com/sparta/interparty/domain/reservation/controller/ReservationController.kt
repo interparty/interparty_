@@ -8,6 +8,7 @@ import com.sparta.interparty.global.security.UserDetailsImpl
 import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -21,8 +22,9 @@ import java.util.*
 class ReservationController(
     private val reservationService: ReservationService
 ) {
-    @PostMapping()
-    fun createReservation(@PathVariable userId:UUID, @PathVariable showId:UUID,@RequestBody request : ReservationReqDto) : ResponseEntity<ReservationResDto>{
+    @PostMapping("/shows/{showId}/reservations")// api/shows/{showId}/reservations
+    fun createReservation(@AuthenticationPrincipal userDetailsImpl: UserDetailsImpl, @PathVariable showId:UUID,@RequestBody request : ReservationReqDto) : ResponseEntity<ReservationResDto>{
+        val userId: UUID = userDetailsImpl.getUser()?.id!!
         val response = reservationService.createReservation(userId,showId,request)
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -36,7 +38,7 @@ class ReservationController(
         return ResponseEntity.status(HttpStatus.OK).body(reservations)
     }
 
-    @DeleteMapping()
+    @DeleteMapping("/shows/{showId}/reservations/{reservationId}") // api/shows/{showId}/reservations/{reservationId}
     fun softDeleteReservataion(@PathVariable userId: UUID,@PathVariable Id: UUID):ResponseEntity<Void>{
         reservationService.softDeleteReservation(userId,Id)
         return ResponseEntity.noContent().build()

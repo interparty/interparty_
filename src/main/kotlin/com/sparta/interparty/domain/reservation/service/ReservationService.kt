@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
-import java.awt.print.Pageable
 import java.util.*
 
 
@@ -31,14 +30,14 @@ class ReservationService(
         if (!(request.seat >= 1 && request.seat <= show.totalSeats)) {
             throw CustomException(ExceptionResponseStatus.RESERVE_NOT_FOUND)
         }
-        val user = userRepository.findById(userId)
-            .orElseThrow { IllegalArgumentException("User not found") }
-        val show = showRepository.findById(showId)
-            .orElseThrow { IllegalArgumentException("Show not found") }
+        // 현재 공연의 좌석에 대한 예약을 찾아 보고, 값이 있는 경우는 중복 예약이므로 예외 처리
+        val existingReservation : Reservation? = reservationRepository.findByShowIdAndSeat(showId, request.seat)
+        existingReservation?.let { throw CustomException(ExceptionResponseStatus.DUPLICATE_RESERVATION) }
+
+        // 등록할 예약 엔티티 생성
         val reservation = Reservation(
-            id = UUID.randomUUID(),
-            reserverId = user,
-            showId = show,
+            reserver = user,
+            show = show,
             seat = request.seat
         )
 
@@ -57,16 +56,16 @@ class ReservationService(
         )
     }
     fun getReservations(userId: UUID, page: Int, size: Int): Page<ReservationResDto> {
-        val pageable: Pageable = PageRequest.of(page, size)
+        val pageRequest : PageRequest = PageRequest.of(page, size)
 
-        val reservations = reservationRepository.findAllByReserverIdAndIsDeletedFalse(userId, pageable)
+        val reservations = reservationRepository.findAllByShowIdAndIsDeletedFalse(userId, pageRequest)
 
         // Entity -> DTO 변환
         return reservations.map { reservation ->
             ReservationResDto(
-                id = reservation.id,
-                userId = reservation.reserverId.id,
-                showId = reservation.showId.id,
+                id = reservation.id!!,
+                userId = reservation.reserver.id,
+                showId = reservation.show.id!!,
                 seat = reservation.seat,
                 status = reservation.status
             )
@@ -74,23 +73,31 @@ class ReservationService(
     }
     @Transactional
     fun softDeleteReservation(userId:UUID,Id:UUID): ReservationResDto {
-        val reservation = reservationRepository.findById(Id)
-            .orElseThrow{IllegalArgumentException("예약을 찾을 수 없습니다.")
-            }
-        if (reservation.reserverId.id!= userId) {
-            throw IllegalAccessException("이 예약을 취소할 권한이 없습니다.")
+
+        // Id 로 예약 조회 및 예외 처리
+        val reservation = reservationRepository.findById(Id).orElseThrow { throw CustomException(ExceptionResponseStatus.RESERVE_NOT_FOUND) }
+
+        /*
+        이거 위에건 orElseT()
+        네그렇습니다 - 재혁
+        */
+
+        // 예약 취소 권한이 없는 경우
+        if (reservation.reserver.id != userId) {
+            throw CustomException(ExceptionResponseStatus.INVALID_USERROLE)
         }
 
         reservation.softDelete()
 
         val deleteReservation = reservationRepository.save(reservation)
 
-        return ReservationResDto(
-            id = deleteReservation.id,
-            userId = deleteReservation.reserverId.id,
-            showId = deleteReservation.showId.id,
-            seat = deleteReservation.seat,
-            status = deleteReservation.status
-        )
+        return ReservationResDto.from(reservation)
+//        return ReservationResDto(
+//            id = deleteReservation.id,
+//            userId = deleteReservation.reserverId.id,
+//            showId = deleteReservation.showId.id!!,
+//            seat = deleteReservation.seat,z
+//            status = deleteReservation.status
+//        )
     }
 }

@@ -12,13 +12,13 @@ class ReservationResDto(
     val status : ReservationStatus
 ){
     companion object {
-        fun from(entity: Reservation): ReservationResDto{
+        fun from(reservation: Reservation): ReservationResDto{
             return  ReservationResDto(
-                id = entity.id,
-                userId = entity.reserverId.id,
-                showId =  entity.showId.id,
-                seat = entity.seat,
-                status = entity.status
+                id = reservation.id!!,
+                userId = reservation.reserver.id,
+                showId = reservation.show.id!!,
+                seat = reservation.seat,
+                status = reservation.status
             )
         }
     }
