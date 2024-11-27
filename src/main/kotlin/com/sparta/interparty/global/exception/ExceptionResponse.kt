@@ -12,6 +12,8 @@ data class ExceptionResponse(
 
     companion object {
         fun toResponseEntityWith(status: HttpStatus, message: String): ResponseEntity<ExceptionResponse> {
+            requireNotNull(status) { "HttpStatus cannot be null." }
+            require(!message.isNullOrBlank()) { "Message cannot be null or blank." }
             return ResponseEntity(ExceptionResponse(status, message), status)
         }
     }

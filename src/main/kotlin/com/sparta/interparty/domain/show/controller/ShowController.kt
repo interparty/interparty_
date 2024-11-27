@@ -2,10 +2,11 @@ package com.sparta.interparty.domain.show.controller
 
 import com.sparta.interparty.domain.show.dto.req.ShowPatchReqDto
 import com.sparta.interparty.domain.show.dto.req.ShowPostReqDto
-import com.sparta.interparty.domain.show.dto.req.toMap
 import com.sparta.interparty.domain.show.dto.res.ShowPostResDto
 import com.sparta.interparty.domain.show.entity.Show
 import com.sparta.interparty.domain.show.enums.ShowCategories
+import com.sparta.interparty.domain.show.mapper.ShowMapper
+import com.sparta.interparty.domain.show.mapper.ShowQuery
 import com.sparta.interparty.domain.show.service.ShowService
 import com.sparta.interparty.domain.user.entity.User
 import com.sparta.interparty.global.security.UserDetailsImpl
@@ -24,9 +25,9 @@ class ShowController(private val showService: ShowService) {
     @PostMapping
     fun createShow(@AuthenticationPrincipal userDetails: UserDetailsImpl, @RequestBody showPostReqDto: ShowPostReqDto): ResponseEntity<ShowPostResDto> {
         val user: User? = userDetails.getUser()
-        var show = showPostReqDto.toEntity()
+        var show = ShowMapper.toEntity(showPostReqDto)
         show = showService.createShow(user, show)
-        return ResponseEntity.status(HttpStatus.CREATED).body(ShowPostResDto.of(show))
+        return ResponseEntity.status(HttpStatus.CREATED).body(ShowMapper.toDto(show))
     }
 
     @GetMapping
@@ -41,14 +42,25 @@ class ShowController(private val showService: ShowService) {
         @RequestParam(required = false) dateAfter: LocalDateTime?,
         @RequestParam(required = false) dateBefore: LocalDateTime?
     ): ResponseEntity<List<ShowPostResDto>> {
-        val shows: List<Show> = showService.readShows(page, size, sortBy, order, category, search, managedBy, dateAfter, dateBefore)
-        return ResponseEntity.ok(shows.map { ShowPostResDto.of(it) })
+        val query = ShowQuery(
+            page = page,
+            size = size,
+            sortBy = sortBy,
+            order = order,
+            category = category,
+            search = search,
+            managedBy = managedBy,
+            dateAfter = dateAfter,
+            dateBefore = dateBefore
+        )
+        val shows: List<Show> = showService.readShows(query)
+        return ResponseEntity.ok(shows.map { ShowMapper.toDto(it) })
     }
 
     @GetMapping("{id}")
     fun readShow(@PathVariable id: UUID): ResponseEntity<ShowPostResDto> {
         val show: Show = showService.readShow(id)
-        return ResponseEntity.ok(ShowPostResDto.of(show))
+        return ResponseEntity.ok(ShowMapper.toDto(show))
     }
 
     @PatchMapping("{id}")
@@ -58,9 +70,9 @@ class ShowController(private val showService: ShowService) {
         @RequestBody @Valid showPatchReqDto: ShowPatchReqDto
     ): ResponseEntity<ShowPostResDto> {
         val user: User? = userDetails.getUser()
-        val patchMap = showPatchReqDto.toMap()
+        val patchMap = ShowMapper.toMap(showPatchReqDto)
         val reqShow = showService.updateShow(user, id, patchMap)
-        return ResponseEntity.ok(ShowPostResDto.of(reqShow))
+        return ResponseEntity.ok(ShowMapper.toDto(reqShow))
     }
 
     @DeleteMapping("{id}")

@@ -1,11 +1,8 @@
 package com.sparta.interparty.domain.show.dto.req
 
-import com.sparta.interparty.domain.show.entity.Show
-import com.sparta.interparty.domain.show.enums.ShowCategories
 import jakarta.validation.constraints.Pattern
 import org.jetbrains.annotations.NotNull
 import org.springframework.format.annotation.DateTimeFormat
-import java.time.LocalDateTime
 
 data class ShowPostReqDto(
     @field:NotNull
@@ -32,15 +29,4 @@ data class ShowPostReqDto(
     var category: String
 ) {
 
-    fun toEntity(): Show {
-        return Show(
-            name,
-            contents,
-            address,
-            price,
-            totalSeats,
-            LocalDateTime.parse(startDateTime),
-            ShowCategories.valueOf(category)
-        )
-    }
 }

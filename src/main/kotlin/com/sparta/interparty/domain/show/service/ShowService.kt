@@ -2,13 +2,13 @@ package com.sparta.interparty.domain.show.service
 
 import com.sparta.interparty.domain.show.entity.Show
 import com.sparta.interparty.domain.show.enums.ShowCategories
+import com.sparta.interparty.domain.show.mapper.ShowQuery
 import com.sparta.interparty.domain.show.repo.ShowRepository
 import com.sparta.interparty.domain.user.entity.User
 import com.sparta.interparty.domain.user.entity.UserRole
 import com.sparta.interparty.global.exception.CustomException
 import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import jakarta.transaction.Transactional
-import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.util.*
@@ -40,29 +40,10 @@ class ShowService(val showRepository: ShowRepository) {
 
     /**
      * 공연의 목록 조회를 처리하는 유일한 메서드. 인가 필요 없음.
-     * @param page: Int - 페이지 번호
-     * @param size: Int - 페이지 크기
-     * @param category: String? - 카테고리
-     * @param search: String? - 검색어
-     * @param managedBy: String? - 매니저 ID
-     * @param sortBy: String? - 정렬 기준 (공연의 속성)
-     * @param order: String? - 정렬 순서 (asc, desc)
-     * @param dateAfter: String? - 기준일 이후로 검색
-     * @param dateBefore: String? - 기준일 이전으로 검색
+     * @param query: ShowQuery - 조회할 공연 목록에 대한 쿼리 객체
      * @return List<Show> - 조회된 공연 목록
      */
-    fun readShows(
-        page: Int,
-        size: Int,
-        sortBy: String,
-        order: String,
-        category: ShowCategories?,
-        search: String?,
-        managedBy: UUID?,
-        dateAfter: LocalDateTime?,
-        dateBefore: LocalDateTime?): List<Show> {
-        val pageable = Pageable.ofSize(size).withPage(page - 1)
-
+    fun readShows(query: ShowQuery): List<Show> {
         // todo - 구현 덜 된 DSL 메서드
         // showRepository.findAllByIsDeletedFalseWithParams(pageable, sortBy, order, category, search, managedBy, dateAfter, dateBefore)
 

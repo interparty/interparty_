@@ -6,7 +6,8 @@ import jakarta.annotation.PostConstruct
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.hibernate.query.sqm.tree.SqmNode.log
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import java.io.UnsupportedEncodingException
@@ -17,13 +18,24 @@ import java.util.*
 
 @Component
 class JwtUtil {
+
     @Value("\${jwt.secret.key}")
     private val secretKey: String? = null
     private var key: Key? = null
     private val signatureAlgorithm = SignatureAlgorithm.HS256
 
+    private val log: Logger = LoggerFactory.getLogger(JwtUtil::class.java)
+
+    companion object {
+        private const val BEARER_PREFIX = "Bearer "
+        private const val TOKEN_TIME = 60 * 60 * 1000L // 60분
+    }
+
     @PostConstruct
     fun init() {
+        if (secretKey == null) {
+            throw IllegalArgumentException("JWT Secret Key is not configured")
+        }
         val bytes = Base64.getDecoder().decode(secretKey)
         key = Keys.hmacShaKeyFor(bytes)
     }
@@ -45,31 +57,29 @@ class JwtUtil {
     }
 
     fun addJwtToCookie(token: String?, res: HttpServletResponse) {
-        var token = token
+        if (token.isNullOrEmpty()) return
+
         try {
-            token = URLEncoder.encode(token, "utf-8")
-                .replace("\\+".toRegex(), "%20") // Cookie Value 에는 공백이 불가능해서 encoding 진행
-
-            val cookie = Cookie("Authorization", token) // Name-Value
+            val encodedToken = URLEncoder.encode(token, "utf-8")
+                .replace("\\+".toRegex(), "%20") // 공백 인코딩
+            val cookie = Cookie("Authorization", encodedToken)
             cookie.path = "/"
-
-            // Response 객체에 Cookie 추가
+            cookie.isHttpOnly = true
             res.addCookie(cookie)
         } catch (e: UnsupportedEncodingException) {
-            log.error(e.message)
+            log.error("Failed to encode JWT token for cookie: ${e.message}")
         }
     }
 
     fun getTokenFromRequest(req: HttpServletRequest): String? {
         val cookies = req.cookies
-        if (cookies != null) {
-            for (cookie in cookies) {
-                if (cookie.name == "Authorization") {
-                    return try {
-                        URLDecoder.decode(cookie.value, "UTF-8") // Encode 되어 넘어간 Value 다시 Decode
-                    } catch (e: UnsupportedEncodingException) {
-                        null
-                    }
+        cookies?.forEach { cookie ->
+            if (cookie.name == "Authorization") {
+                return try {
+                    URLDecoder.decode(cookie.value, "UTF-8") // Decode
+                } catch (e: UnsupportedEncodingException) {
+                    log.error("Failed to decode JWT token from cookie: ${e.message}")
+                    null
                 }
             }
         }
@@ -77,6 +87,9 @@ class JwtUtil {
     }
 
     fun extractClaims(token: String?): Claims {
+        if (token.isNullOrEmpty()) {
+            throw IllegalArgumentException("JWT token is missing")
+        }
         return Jwts.parserBuilder()
             .setSigningKey(key)
             .build()
@@ -84,27 +97,25 @@ class JwtUtil {
             .body
     }
 
-    // JWT 검증
     fun validateToken(token: String): Boolean {
-        try {
+        return try {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
-            return true
+            true
         } catch (e: SecurityException) {
-            log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.")
+            log.error("Invalid JWT signature: ${e.message}")
+            false
         } catch (e: MalformedJwtException) {
-            log.error("Invalid JWT signature, 유효하지 않는 JWT 서명 입니다.")
+            log.error("Invalid JWT structure: ${e.message}")
+            false
         } catch (e: ExpiredJwtException) {
-            log.error("Expired JWT token, 만료된 JWT token 입니다.")
+            log.error("Expired JWT token: ${e.message}")
+            false
         } catch (e: UnsupportedJwtException) {
-            log.error("Unsupported JWT token, 지원되지 않는 JWT 토큰 입니다.")
+            log.error("Unsupported JWT token: ${e.message}")
+            false
         } catch (e: IllegalArgumentException) {
-            log.error("JWT claims is empty, 잘못된 JWT 토큰 입니다.")
+            log.error("JWT claims string is empty: ${e.message}")
+            false
         }
-        return false
-    }
-
-    companion object {
-        private const val BEARER_PREFIX = "Bearer "
-        private const val TOKEN_TIME = 60 * 60 * 1000L // 60분
     }
 }
