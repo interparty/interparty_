@@ -1,6 +1,5 @@
 package com.sparta.interparty.global.exception
 
-import org.springframework.boot.actuate.autoconfigure.observation.ObservationProperties.Http
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -19,6 +18,7 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
 
     // reservation
     RESERVE_NOT_FOUND(HttpStatus.BAD_REQUEST,"예약을 찾을 수 없습니다."),
+    SEAT_NOT_EXIST(HttpStatus.BAD_REQUEST,"해당 좌석은 존재하지 않습니다."),
     DUPLICATE_RESERVATION(HttpStatus.CONFLICT,"해당 좌석은 이미 예약되었습니다."),
     CANNOT_CONFIRM_DELETED_RESERVATION(HttpStatus.BAD_REQUEST,"삭제된 예약은 확정할 수 없습니다."),
 
