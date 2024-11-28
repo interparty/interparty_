@@ -1,0 +1,31 @@
+spring:
+  config:
+    activate:
+      on-profile: test # test 프로파일 활성화
+  datasource:
+    url: jdbc:h2:mem:testdb # H2 인메모리 데이터베이스 URL
+    driver-class-name: org.h2.Driver # H2 드라이버
+    username: sa # 기본 사용자 이름
+    password: # 비밀번호 없음
+  jpa:
+    hibernate:
+      ddl-auto: create-drop # 테스트마다 테이블 생성 후 종료 시 삭제
+    show-sql: true # 테스트 중 SQL 쿼리 출력
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        format_sql: true # SQL 포맷팅 활성화
+        use_sql_comments: true # SQL 주석 활성화
+
+redis:
+  connection:
+    endpoint: redis://localhost:6379 # 테스트 환경 Redis URL
+
+jwt:
+  secret: bXktc3VwZXItc2VjdXJlLXNlY3JldC1rZXktMjAyNAo=
+
+# Base64로 인코딩된 JWT Secret Key
+
+logging:
+  level:
+    root: DEBUG # 테스트 환경에서는 DEBUG 레벨 활성화

@@ -33,13 +33,18 @@ class JwtUtil {
 
     @PostConstruct
     fun init() {
-        if (secretKey == null) {
+        if (secretKey.isNullOrBlank()) {
             throw IllegalArgumentException("JWT Secret Key is not configured")
         }
-        val bytes = Base64.getDecoder().decode(secretKey)
-        key = Keys.hmacShaKeyFor(bytes)
+        try {
+            log.info("Initializing JWT Secret Key: $secretKey") // 디버깅용 로그
+            val bytes = Base64.getDecoder().decode(secretKey)
+            key = Keys.hmacShaKeyFor(bytes)
+        } catch (e: IllegalArgumentException) {
+            log.error("Invalid Base64 JWT Secret Key: ${e.message}")
+            throw IllegalArgumentException("Invalid JWT Secret Key", e)
+        }
     }
-
     fun createToken(userId: UUID, username: String, email: String, userRole: String, nickname: String): String {
         val date = Date()
 
