@@ -22,27 +22,29 @@ class ShowServiceV2(
     어뷰징 방지
     공연 조회v2 api에 적용
     */
-    fun preventAbuse(showId: UUID, userId: UUID): Boolean {
-        val userSetKey = "show:$showId:users"
+    fun isAbuse(showId: UUID, userId: UUID): Boolean {
+        // Redis 키: 특정 공연의 사용자별 조회수를 관리
+        val userViewKey = "show:$showId:user-vies"
 
-        // Redis에서 중복 확인
-        val alreadyInteracted = redisTemplate.opsForSet().isMember(userSetKey, userId) ?: false
+        // 사용자 조회수 증가
+        val userViewCount = redisTemplate.opsForHash<String, Int>().increment(userViewKey, userId.toString(), 1) ?: 0
 
-        if (!alreadyInteracted) {
-            // 사용자 기록 및 TTL 설정
-            redisTemplate.opsForSet().add(userSetKey, userId)
-            redisTemplate.expire(userSetKey, Duration.ofHours(1))
+        // 어뷰징 감지: 조회수가 10 이상인 경우
+        val isAbusing = userViewCount >= 10
+
+        // 어뷰징 감지된 경우 TTL 설정 (1시간)
+        if (isAbusing) {
+            redisTemplate.expire(userViewKey, Duration.ofHours(1))
         }
 
-        return alreadyInteracted
+        return isAbusing
     }
 
     // Redis 캐싱이 적용된 공연 조회
     fun readShowWithCache(showId: UUID, userId: UUID): Show {
 
-        // 어뷰징 방지 로직: 동일 사용자가 중복 요청을 보냈는지 확인
-        val isAbusing = preventAbuse(showId, userId)
-        if (isAbusing) {
+        // 어뷰징 방지 로직: 동일한 사용자가 10회 이상 조회시 감지
+        if (isAbuse(showId, userId)) {
             throw CustomException(ExceptionResponseStatus.ABUSE_DETECTED)
         }
 
@@ -75,6 +77,7 @@ class ShowServiceV2(
      * @param showId 공연 UUID
      */
     private fun incrementViewCount(showId: UUID) {
+
         // 각 공연의 조회수를 저장하는 Redis 키
         val viewKey = "show:$showId:views"
 
