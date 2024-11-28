@@ -34,12 +34,14 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     INVALID_FIELD_MODIFICATION(HttpStatus.BAD_REQUEST, "잘못된 값으로 수정을 시도중입니다."), // 400
     NOT_A_MANAGER(HttpStatus.FORBIDDEN, "해당 공연의 매니저가 아닙니다."), // 403
 
-
     // user
     DELETED_USER(HttpStatus.FORBIDDEN, "이미 탈퇴한 사용자입니다."),
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "사용자를 찾을 수 없습니다."),
     INVALID_UPDATE_REQUEST(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다."),
+
+    // abuse
+    ABUSING(HttpStatus.FORBIDDEN,"[abusing] 1시간 동안 해당 공연에 대한 리뷰를 작성할 수 없습니다.")
     ;
 
     // 열거형에서 바로 응답 엔티티 생성
