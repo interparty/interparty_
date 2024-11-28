@@ -41,7 +41,7 @@ enum class ExceptionResponseStatus(val status: HttpStatus, val message: String) 
     INVALID_UPDATE_REQUEST(HttpStatus.BAD_REQUEST, "수정할 정보가 없습니다."),
 
     // abuse
-    ABUSING(HttpStatus.FORBIDDEN,"[abusing] 1시간 동안 해당 공연에 대한 리뷰를 작성할 수 없습니다.")
+    ABUSE_DETECTED(HttpStatus.FORBIDDEN,"[어뷰징 감지] 1시간 동안 해당 id 공연에 대한 조회를 할 수 없습니다.")
     ;
 
     // 열거형에서 바로 응답 엔티티 생성

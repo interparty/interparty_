@@ -9,7 +9,7 @@ class UserDetailsImpl(
     private val user: User
 ) : UserDetails {
 
-    fun getUser(): User? {
+    fun getUser(): User {
         return user
     }
 

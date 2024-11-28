@@ -18,8 +18,34 @@ class ShowServiceV2(
     val showRepository: ShowRepository,
     private val redisTemplate: RedisTemplate<String, Any> // RedisTemplate 주입
 ) {
+    /*
+    어뷰징 방지
+    공연 조회v2 api에 적용
+    */
+    fun preventAbuse(showId: UUID, userId: UUID): Boolean {
+        val userSetKey = "show:$showId:users"
+
+        // Redis에서 중복 확인
+        val alreadyInteracted = redisTemplate.opsForSet().isMember(userSetKey, userId) ?: false
+
+        if (!alreadyInteracted) {
+            // 사용자 기록 및 TTL 설정
+            redisTemplate.opsForSet().add(userSetKey, userId)
+            redisTemplate.expire(userSetKey, Duration.ofHours(1))
+        }
+
+        return alreadyInteracted
+    }
+
     // Redis 캐싱이 적용된 공연 조회
-    fun readShowWithCache(showId: UUID): Show {
+    fun readShowWithCache(showId: UUID, userId: UUID): Show {
+
+        // 어뷰징 방지 로직: 동일 사용자가 중복 요청을 보냈는지 확인
+        val isAbusing = preventAbuse(showId, userId)
+        if (isAbusing) {
+            throw CustomException(ExceptionResponseStatus.ABUSE_DETECTED)
+        }
+
         // Redis 조회수 증가
         incrementViewCount(showId)
 
@@ -30,7 +56,8 @@ class ShowServiceV2(
 
     @Transactional
     fun updateRankings(showId: UUID, rankings: MutableMap<Int, UUID>) {
-        val show = showRepository.findById(showId).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
+        val show =
+            showRepository.findById(showId).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
 
         show.rankings = rankings
         showRepository.save(show)
@@ -94,9 +121,9 @@ class ShowServiceV2(
      * 자정마다 Redis의 랭킹 데이터를 MySQL로 동기화 후 초기화
      */
     fun syncRankingsToMySQL() {
-        val rankings = redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey,0,4)
+        val rankings = redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey, 0, 4)
 
-        if(rankings != null) {
+        if (rankings != null) {
             val rankingMap = mutableMapOf<Int, UUID>()
 
             rankings.forEachIndexed { index, entry ->
@@ -105,38 +132,29 @@ class ShowServiceV2(
                 rankingMap[rank] = showId
             }
 
-            // MySQL에 저장
-            val show = showRepository.findById(rankingMap.values.first()).orElseThrow()
-            show.rankings = rankingMap
-            showRepository.save(show)
+//            // MySQL에 저장
+//            val show = showRepository.findById(rankingMap.values.first()).orElseThrow()
+//            show.rankings = rankingMap
+//            showRepository.save(show)
+            // 각 공연 ID에 대해 랭킹 데이터 업데이트
+            rankingMap.forEach { (rank, showId) ->
+                val show = showRepository.findById(showId).orElseThrow {
+                    throw CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND)
+                }
+                show.rankings[rank] = showId
+                showRepository.save(show)
+
+            }
+
+            // Redis 초기화(랭킹)
+            redisTemplate.delete(rankingKey)
         }
 
-        // Redis 초기화(랭킹)
-        redisTemplate.delete(rankingKey)
-    }
-
-    // 두 번 째 요구사항 : 응답 속도를 높이는 방안 -> HashSet으로 캐시 저장
+        // 두 번 째 요구사항 : 응답 속도를 높이는 방안 -> HashSet으로 캐시 저장
 //    fun incrementViewCountUsingHash(showId: UUID) {
 //        val hashKey = "show:views"
 //        redisTemplate.opsForHash<String, Int>().increment(hashKey,showId.toString(), 1)
 //    }
 
-    /*
-    어뷰징 방지
-    댓글 등록 api에 적용
-     */
-    fun preventAbuse(showId: UUID, userId: UUID): Boolean {
-        val userSetKey = "show:$showId:users"
-
-        // 중복 확인
-        val alreadyInteracted = redisTemplate.opsForSet().isMember(userSetKey, userId) ?: false
-
-        if(!alreadyInteracted) {
-            // 사용자 기록 및 TTL 설정
-            redisTemplate.opsForSet().add(userSetKey, userId)
-            redisTemplate.expire(userSetKey, Duration.ofHours(1))
-        }
-
-        return !alreadyInteracted
     }
 }

@@ -1,11 +1,13 @@
 package com.sparta.interparty.domain.show.controller
 
+import com.sparta.interparty.domain.show.dto.res.ShowPostResDto
 import com.sparta.interparty.domain.show.entity.Show
+import com.sparta.interparty.domain.show.mapper.ShowMapper
 import com.sparta.interparty.domain.show.service.ShowServiceV2
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import com.sparta.interparty.global.security.UserDetailsImpl
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.*
 import java.util.*
 
 @RestController
@@ -13,8 +15,19 @@ import java.util.*
 class ShowControllerV2(
     private val showServiceV2: ShowServiceV2
 ) {
-    @GetMapping("/{id}")
-    fun readShowWithCache(@PathVariable id: UUID): Show {
-        return showServiceV2.readShowWithCache(id)
+    @GetMapping("/{showId}")
+    fun readShowWithCache(@PathVariable showId: UUID, @AuthenticationPrincipal userDetails: UserDetailsImpl): ResponseEntity<ShowPostResDto> {
+        val userId = userDetails.getUser().id
+        val show: Show = showServiceV2.readShowWithCache(showId, userId)
+        return ResponseEntity.ok(ShowMapper.toDto(show))
     }
+
+    // 랭킹 동기화 작동 테스트용 api
+    // 랭킹 동기화 API
+    @PostMapping("/sync-rankings")
+    fun syncRankings(): ResponseEntity<String> {
+        showServiceV2.syncRankingsToMySQL()
+        return ResponseEntity.ok("Rankings synchronized successfully.")
+    }
+
 }
