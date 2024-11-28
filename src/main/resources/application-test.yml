@@ -10,3 +10,15 @@ spring:
         dialect: org.hibernate.dialect.H2Dialect
         ddl-auto: create-drop
     show-sql: false
+redis:
+  host: localhost
+  port: 6379
+
+jwt:
+  secret:
+    key: "testSecretKeyForJWT"
+
+logging:
+  level:
+    root: WARN
+    org.hibernate.SQL: DEBUG
