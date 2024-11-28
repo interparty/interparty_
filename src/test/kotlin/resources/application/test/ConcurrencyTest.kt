@@ -22,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.time.LocalDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -109,7 +110,8 @@ class ConcurrencyTest(
         showRepository.save(testShow)
         val executorService = Executors.newFixedThreadPool(1000)
         val countDownLatch = CountDownLatch(1000)
-        var collides = 0
+        val collides = IntArray(1)
+        collides[0] = 0
 
         // when
         (1..100).forEach { seatNo ->
@@ -125,7 +127,7 @@ class ConcurrencyTest(
                         )
                     } catch (ex: Exception) {
                         // 자리 당 9번의 실패가 발생한다고 예상
-                        collides++
+                        synchronized(collides) { collides[0]++ }
                     } finally {
                         countDownLatch.countDown()
                     }
@@ -133,15 +135,17 @@ class ConcurrencyTest(
             }
         }
         countDownLatch.await()
+        executorService.shutdown()
+        executorService.awaitTermination(1, TimeUnit.MINUTES)
 
         // then
         val reservations = reservationRepository.findAll().map { it.seat }
-        println("예매 실패 횟수: $collides 회")
+        println("예매 실패 횟수: ${collides[0]} 회")
         print("예매된 좌석 번호 목록: $reservations")
 
         Assertions.assertAll(
             // 요청 1000번 - 자리 100개 = 900번의 실패
-            { assertEquals(900, collides) },
+            { assertEquals(900, collides[0]) },
             // 중복된 좌석 번호가 없어야 함
             { assertEquals(reservations.toSet().size, reservations.size) }
         )
