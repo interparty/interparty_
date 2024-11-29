@@ -10,7 +10,7 @@
 
 ---
 
-## 👩‍💻 팀원 구성 TODO : zep 사진 추가 예정
+## 👩‍💻 팀원 구성
 
 <div align="center">
 
@@ -35,7 +35,7 @@
 - 회원, 예매, 공연, 리뷰 **4개의 도메인**으로 나누어 설계.
 - 각 도메인의 와이어프레임은 아래와 같습니다:
 - https://www.figma.com/board/RptzfnRuQOECXlDyCO6vZ7/i2-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-figjam?node-id=0-1&node-type=canvas&t=6jYEgJLarpuEZXDn-0
-  ![img.png](img.png)
+  ![img.png](images/와이어프레임.png)
 
 ---
 
@@ -43,7 +43,7 @@
 
 - 데이터베이스 설계는 아래 ERD를 기반으로 진행되었습니다:
 - https://www.erdcloud.com/d/6KgyKo9u38vXQBpSY
-  ![img_1.png](img_1.png)
+  ![img_1.png](images/erd.png)
 
 ---
 
@@ -141,6 +141,8 @@ interparty
 - **예매**: 좌석 선택 및 예매 관리.
 - **리뷰**: 리뷰 작성, 수정, 삭제 및 조회.
 
+### TODO : 동시성 제어 구현 기능 설명
+
 ### Redis 캐싱 구현
 
 **Redis를 활용한 조회수 및 랭킹 관리**
@@ -219,5 +221,4 @@ interparty
 
 ## 📢 TODO : 프로젝트 후기
 
-(추후 작성 예정)
 
