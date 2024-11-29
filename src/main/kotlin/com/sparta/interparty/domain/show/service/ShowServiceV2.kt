@@ -18,6 +18,7 @@ class ShowServiceV2(
     val showRepository: ShowRepository,
     private val redisTemplate: RedisTemplate<String, Any> // RedisTemplate 주입
 ) {
+
     /*
     어뷰징 방지
     공연 조회v2 api에 적용
@@ -43,17 +44,27 @@ class ShowServiceV2(
     // Redis 캐싱이 적용된 공연 조회
     fun readShowWithCache(showId: UUID, userId: UUID): Show {
 
-        // 어뷰징 방지 로직: 동일한 사용자가 10회 이상 조회시 감지
-        if (isAbuse(showId, userId)) {
-            throw CustomException(ExceptionResponseStatus.ABUSE_DETECTED)
-        }
+//        대량 조회 테스트를 위해 어뷰징 감지는 주석 처리
+//        어뷰징 방지 로직: 동일한 사용자가 10회 이상 조회시 감지
+//        if (isAbuse(showId, userId)) {
+//            throw CustomException(ExceptionResponseStatus.ABUSE_DETECTED)
+//        }
 
         // Redis 조회수 증가
         incrementViewCount(showId)
 
+        // Redis에서 현재 조회수 읽기
+        val viewKey = "show:$showId:views"
+        val viewCount = redisTemplate.opsForValue().get(viewKey)?.toString()?.toInt() ?: 0
+        println("View count fetched for $viewKey: $viewCount")
+
         // MySQL에서 공연 정보 조회
-        return showRepository.findByIdAndIsDeletedFalse(showId)
-            .orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
+        val show = showRepository.findByIdAndIsDeletedFalse(showId).orElseThrow { CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND) }
+
+        // 공연 객체에 조회수 설정
+        show.viewCount = viewCount
+        return show
+
     }
 
     @Transactional
@@ -135,29 +146,64 @@ class ShowServiceV2(
                 rankingMap[rank] = showId
             }
 
-//            // MySQL에 저장
-//            val show = showRepository.findById(rankingMap.values.first()).orElseThrow()
-//            show.rankings = rankingMap
-//            showRepository.save(show)
-            // 각 공연 ID에 대해 랭킹 데이터 업데이트
+            // 기존 랭킹 업데이트
             rankingMap.forEach { (rank, showId) ->
                 val show = showRepository.findById(showId).orElseThrow {
                     throw CustomException(ExceptionResponseStatus.SHOW_NOT_FOUND)
                 }
                 show.rankings[rank] = showId
                 showRepository.save(show)
-
             }
 
-            // Redis 초기화(랭킹)
-            redisTemplate.delete(rankingKey)
+            // Redis 데이터는 유지
+            println("랭킹 동기화 완료. Redis 데이터를 유지합니다.")
+        } else {
+            println("Redis에 랭킹 데이터가 없습니다.")
         }
 
-        // 두 번 째 요구사항 : 응답 속도를 높이는 방안 -> HashSet으로 캐시 저장
+        // 조회수만 초기화
+        resetViewCounts()
+    }
+
+    private fun resetViewCounts() {
+        val viewKeys = redisTemplate.keys("show:*:views") ?: return
+
+        viewKeys.forEach { key ->
+            redisTemplate.delete(key)
+
+            //삭제 확인
+            if(redisTemplate.hasKey(key) == true) {
+                println("Failed to delete key: $key")
+            } else {
+                println("Successfully deleted key: $key")
+            }
+        }
+    }
+
+    fun getRankings(): List<Map<String, Any>> {
+        // Redis Sorted Set에서 랭킹 데이터 조회
+        val rankings = redisTemplate.opsForZSet().reverseRangeWithScores(rankingKey, 0, 4)
+
+        // 랭킹 데이터를 반환 형식으로 변환
+        return rankings?.mapIndexed { index, entry ->
+            val rank = index + 1
+            val showId = UUID.fromString(entry.value.toString())
+            val viewCount = entry.score?.toInt() ?: 0
+
+            // Map 형태로 변환
+            mapOf(
+                "rank" to rank,
+                "showId" to showId,
+                "viewCount" to viewCount
+            )
+        } ?: emptyList() // Redis에 랭킹 데이터가 없으면 빈 리스트 반환
+    }
+
+}
+
+// 두 번 째 요구사항 : 응답 속도를 높이는 방안 -> HashSet으로 캐시 저장
 //    fun incrementViewCountUsingHash(showId: UUID) {
 //        val hashKey = "show:views"
 //        redisTemplate.opsForHash<String, Int>().increment(hashKey,showId.toString(), 1)
 //    }
-
-    }
-}
+// 이걸로도 따로 테스트해서 성능 비교 하고 싶었으나 시간 부족.
