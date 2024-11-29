@@ -56,4 +56,14 @@ class Show() : TimeStamped() {
 
     // SoftDelete 를 위한 컬럼
     @Column(nullable = false) var isDeleted: Boolean = false
+
+    // 캐싱을 위한 필드 추가
+    @Column
+    var viewCount: Int = 0
+
+    @ElementCollection
+    @CollectionTable(name = "show_rankings", joinColumns = [JoinColumn(name = "show_id")])
+//    @MapKeyColumn(name = "rank")
+    @Column
+    var rankings: MutableMap<Int, UUID> = mutableMapOf()
 }

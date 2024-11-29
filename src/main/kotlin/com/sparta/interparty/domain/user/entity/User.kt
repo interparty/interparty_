@@ -7,6 +7,9 @@ import java.util.*
 @Entity
 @Table(name = "users")
 class User(
+    @Id
+    val id: UUID = UUID.randomUUID(),
+
     @Column(nullable = false, unique = true)
     var username: String,
 
@@ -26,8 +29,6 @@ class User(
     @Column(nullable = false)
     var phoneNumber: String,
 ) : TimeStamped() {
-    @Id
-    val id: UUID = UUID.randomUUID()
 
     @Column(nullable = false)
     var isDeleted: Boolean = false

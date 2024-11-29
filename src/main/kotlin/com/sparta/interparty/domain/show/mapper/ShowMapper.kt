@@ -39,7 +39,9 @@ object ShowMapper {
             entity.price,
             entity.totalSeats,
             entity.startDateTime.toString(),
-            entity.category.toString()
+            entity.category.toString(),
+            entity.viewCount,
+            entity.rankings
         )
     }
 }

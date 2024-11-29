@@ -3,6 +3,10 @@ package com.sparta.interparty.domain.review.controller
 import com.sparta.interparty.domain.review.dto.req.ReviewReqDto
 import com.sparta.interparty.domain.review.dto.res.ReviewResDto
 import com.sparta.interparty.domain.review.usecase.*
+import com.sparta.interparty.domain.show.service.ShowService
+import com.sparta.interparty.domain.show.service.ShowServiceV2
+import com.sparta.interparty.global.exception.CustomException
+import com.sparta.interparty.global.exception.ExceptionResponseStatus
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,7 +18,8 @@ class ReviewController(
     private val createReviewUseCase: CreateReviewUseCase,
     private val getReviewsUseCase: GetReviewsUseCase,
     private val updateReviewUseCase: UpdateReviewUseCase,
-    private val deleteReviewUseCase: DeleteReviewUseCase
+    private val deleteReviewUseCase: DeleteReviewUseCase,
+    private val showServiceV2: ShowServiceV2
 ) {
 
     @GetMapping

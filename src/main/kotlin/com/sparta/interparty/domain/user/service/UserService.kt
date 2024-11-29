@@ -18,7 +18,7 @@ class UserService(
 ) {
 
     fun getUserInfo(userDetails: UserDetailsImpl): UserResDto {
-        if (userDetails.getUser()!!.isDeleted) {
+        if (userDetails.getUser().isDeleted) {
             throw CustomException(ExceptionResponseStatus.DELETED_USER)
         }
 
