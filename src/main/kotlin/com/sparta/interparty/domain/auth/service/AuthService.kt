@@ -26,7 +26,11 @@ class AuthService(
 
         val encodedPassword = passwordEncoder.encode(signupRequestDto.password)
 
-        val userRole = UserRole.of(signupRequestDto.userRole)
+        val userRole = try {
+            UserRole.valueOf(signupRequestDto.userRole.uppercase())
+        } catch (e: IllegalArgumentException) {
+            throw CustomException(ExceptionResponseStatus.INVALID_USERROLE)
+        }
 
         val newUser = User(
             username = signupRequestDto.username,
